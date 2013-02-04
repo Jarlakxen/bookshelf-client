@@ -1,21 +1,47 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <groupId>com.bookshelf.client</groupId>
-  <artifactId>bookshelf-client</artifactId>
-  <version>1.0-SNAPSHOT</version>
-  <name>Bookshelf Client</name>
-  
-  	<properties>
-  		<spring.version>3.2.1.RELEASE</spring.version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+	<modelVersion>4.0.0</modelVersion>
+	<groupId>com.bookshelf.client</groupId>
+	<artifactId>bookshelf-client</artifactId>
+	<version>1.0-SNAPSHOT</version>
+	<name>Bookshelf Client</name>
+
+	<repositories>
+		<repository>
+			<id>jboss</id>
+			<url>>http://repository.jboss.org/nexus/content/groups/public/</url>
+		</repository>
+	</repositories>
+
+	<properties>
+		<spring.version>3.2.1.RELEASE</spring.version>
+		<resteasy.version>2.3.5.Final</resteasy.version>
 	</properties>
 
 	<dependencies>
-	
+
 		<!-- JBoss RESTEasy -->
 		<dependency>
 			<groupId>org.jboss.resteasy</groupId>
 			<artifactId>resteasy-jaxrs</artifactId>
-			<version>2.3.5.Final</version>
+			<version>${resteasy.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.jboss.resteasy</groupId>
+			<artifactId>resteasy-jackson-provider</artifactId>
+			<version>${resteasy.version}</version>
+		</dependency>
+		
+		<!-- Jersey -->
+		<dependency>
+			<groupId>com.sun.jersey</groupId>
+			<artifactId>jersey-client</artifactId>
+			<version>1.17</version>
+		</dependency>
+		<dependency>
+			<groupId>org.codehaus.jackson</groupId>
+			<artifactId>jackson-jaxrs</artifactId>
+			<version>1.9.12</version>
 		</dependency>
 
 		<!-- Spring 3 dependencies -->
@@ -25,7 +51,7 @@
 			<version>${spring.version}</version>
 			<scope>provided</scope>
 		</dependency>
- 
+
 		<dependency>
 			<groupId>org.springframework</groupId>
 			<artifactId>spring-context</artifactId>
@@ -36,14 +62,20 @@
 
 		<!-- Testing -->
 		<dependency>
+			<groupId>junit</groupId>
+			<artifactId>junit</artifactId>
+			<version>4.11</version>
+			<scope>test</scope>
+		</dependency>
+		<dependency>
 			<groupId>org.mockito</groupId>
 			<artifactId>mockito-all</artifactId>
 			<version>1.8.5</version>
 			<scope>test</scope>
 		</dependency>
 	</dependencies>
-	
-		<build>
+
+	<build>
 		<plugins>
 			<plugin>
 				<groupId>org.apache.maven.plugins</groupId>
@@ -104,7 +136,7 @@
 				</executions>
 			</plugin>
 		</plugins>
-			
+
 	</build>
-	
+
 </project>

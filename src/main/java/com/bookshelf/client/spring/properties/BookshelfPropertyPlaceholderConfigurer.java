@@ -4,9 +4,6 @@ import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
-import org.jboss.resteasy.client.ClientRequest;
-import org.jboss.resteasy.client.ClientResponse;
-import org.jboss.resteasy.util.GenericType;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -17,11 +14,18 @@ import org.springframework.beans.factory.config.PropertyPlaceholderConfigurer;
 import org.springframework.core.Ordered;
 import org.springframework.core.PriorityOrdered;
 
+import com.bookshelf.client.connector.JerseyConnector;
+import com.bookshelf.client.connector.RESTConnector;
+
 
 public class BookshelfPropertyPlaceholderConfigurer
     implements BeanFactoryPostProcessor, BeanFactoryAware, BeanNameAware, PriorityOrdered {
 
+	public static final Class<? extends RESTConnector> DEFAULT_REST_CONNECTOR = JerseyConnector.class;
 	public static final String BOOKSHELF_URL = "http://%s/bookshelf/query/%s/%s/%s";
+
+	public static final String HOST_SYSTEM_PROPERTY_KEY = "bookshelf.client.host";
+	public static final String ENVIROMENT_SYSTEM_PROPERTY_KEY = "bookshelf.client.env";
 	
     protected BeanFactory beanFactory;
     protected String beanName;
@@ -31,37 +35,43 @@ public class BookshelfPropertyPlaceholderConfigurer
     private boolean ignoreUnresolvablePlaceholders = true;
     private int systemPropertiesMode = PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE;
 
-    private String bookshelfDomain;
-    private String projectName;
-    private String moduleName;
-    private String enviroment;
+    private RESTConnector connector;
+    
+    private String serverUrl;
+   
+    public BookshelfPropertyPlaceholderConfigurer(String projectName, String moduleName) {
+    	this(DEFAULT_REST_CONNECTOR, projectName, moduleName);
+    }
+    
+    public BookshelfPropertyPlaceholderConfigurer(Class<? extends RESTConnector> restConnector, String projectName, String moduleName) {
+    	this(restConnector, System.getProperty(HOST_SYSTEM_PROPERTY_KEY), projectName, moduleName, System.getProperty(ENVIROMENT_SYSTEM_PROPERTY_KEY));
+    }
     
     public BookshelfPropertyPlaceholderConfigurer(String bookshelfDomain, String projectName, String moduleName, String enviroment) {
-    	this.bookshelfDomain = bookshelfDomain;
-    	this.projectName = projectName;
-    	this.moduleName = moduleName;
-    	this.enviroment = enviroment;
-	}
+    	this(DEFAULT_REST_CONNECTOR, bookshelfDomain, projectName, moduleName, enviroment);
+    }
     
-    private Map<String, String> getPropertiesFromServer(){
-    	String serverUrl = String.format(BOOKSHELF_URL, bookshelfDomain, projectName, moduleName, enviroment);
+   	public BookshelfPropertyPlaceholderConfigurer(Class<? extends RESTConnector> restConnector, String bookshelfDomain, String projectName, String moduleName, String enviroment) {
     	
-    	ClientRequest request = new ClientRequest(serverUrl);
-		request.accept("application/json");
-		
-		ClientResponse<?> response;
-		
-		try {
-			response = request.get();
+   		if(bookshelfDomain==null){
+   			throw new RuntimeException("The domain of the server is null!");
+   		}
+
+   		if(enviroment==null){
+   			throw new RuntimeException("The enviroment is null!");
+   		}
+   		
+   		serverUrl = String.format(BOOKSHELF_URL, bookshelfDomain, projectName, moduleName, enviroment);
+   		
+   		try {
+			connector = restConnector.getConstructor(String.class).newInstance(serverUrl);
 		} catch (Exception e) {
 			throw new RuntimeException(e);
 		}
-		
-		if (response.getStatus() != 200) {
-			throw new RuntimeException("Failed : HTTP error code : " + response.getStatus());
-		}
-		
-		return response.getEntity( new GenericType<Map<String, String>>() {});
+	}
+    
+    public Map<String, String> getPropertiesFromServer(){
+		return connector.get();
     }
     
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -130,6 +140,10 @@ public class BookshelfPropertyPlaceholderConfigurer
     
     public int getSystemPropertiesMode() {
 		return systemPropertiesMode;
+	}
+    
+    public String getServerUrl() {
+		return serverUrl;
 	}
 }
 
