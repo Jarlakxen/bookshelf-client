@@ -1,9 +1,11 @@
 package com.bookshelf.client.spring.properties;
 
+import java.util.Collections;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Properties;
 
+import org.apache.log4j.Logger;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.BeanFactory;
 import org.springframework.beans.factory.BeanFactoryAware;
@@ -21,6 +23,8 @@ import com.bookshelf.client.connector.RESTConnector;
 public class BookshelfPropertyPlaceholderConfigurer
     implements BeanFactoryPostProcessor, BeanFactoryAware, BeanNameAware, PriorityOrdered {
 
+	private static final Logger LOGGER = Logger.getLogger(BookshelfPropertyPlaceholderConfigurer.class);
+	
 	public static final Class<? extends RESTConnector> DEFAULT_REST_CONNECTOR = JerseyConnector.class;
 	public static final String BOOKSHELF_URL = "http://%s/bookshelf/query/%s/%s/%s";
 
@@ -33,6 +37,7 @@ public class BookshelfPropertyPlaceholderConfigurer
     protected String fileEncoding = null; // "utf-8";
     protected String nullValue = "NULL";
     private boolean ignoreUnresolvablePlaceholders = true;
+    private boolean continueWithConnectionErrors = false;
     private int systemPropertiesMode = PropertyPlaceholderConfigurer.SYSTEM_PROPERTIES_MODE_OVERRIDE;
 
     private RESTConnector connector;
@@ -66,12 +71,32 @@ public class BookshelfPropertyPlaceholderConfigurer
    		try {
 			connector = restConnector.getConstructor(String.class).newInstance(serverUrl);
 		} catch (Exception e) {
-			throw new RuntimeException(e);
+			
+			LOGGER.warn("Cannot establish connection with " + serverUrl, e);
+			
+			if(!continueWithConnectionErrors){
+				throw new RuntimeException(e);
+			}
 		}
 	}
     
     public Map<String, String> getPropertiesFromServer(){
-		return connector.get();
+    	
+    	if(connector== null){
+    		return Collections.emptyMap();
+    	}
+    	
+    	try{
+    		return connector.get();	
+    	} catch (Exception e) {
+			if(!continueWithConnectionErrors){
+				LOGGER.error("Cannot get values from " + serverUrl, e);
+				throw new RuntimeException(e.getCause());
+			} else {
+				LOGGER.warn("Cannot get values from with " + serverUrl, e);
+				return Collections.emptyMap();
+			}
+    	}
     }
     
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
@@ -124,6 +149,14 @@ public class BookshelfPropertyPlaceholderConfigurer
     
     public boolean isIgnoreUnresolvablePlaceholders() {
 		return ignoreUnresolvablePlaceholders;
+	}
+    
+    public boolean isContinueWithConnectionErrors() {
+		return continueWithConnectionErrors;
+	}
+    
+    public void setContinueWithConnectionErrors(boolean continueWithConnectionErrors) {
+		this.continueWithConnectionErrors = continueWithConnectionErrors;
 	}
     
     public void setNullValue(String nullValue) {
