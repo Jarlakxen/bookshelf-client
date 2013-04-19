@@ -48,12 +48,6 @@ public class BookshelfPropertyPlaceholderConfigurer
         this(DEFAULT_REST_CONNECTOR, projectName, moduleName);
     }
 
-    public BookshelfPropertyPlaceholderConfigurer(Class<? extends RESTConnector> restConnector, String projectName,
-        String moduleName) {
-        this(restConnector, System.getProperty(HOST_SYSTEM_PROPERTY_KEY), projectName, moduleName, System
-            .getProperty(ENVIROMENT_SYSTEM_PROPERTY_KEY));
-    }
-
     public BookshelfPropertyPlaceholderConfigurer(String bookshelfDomain, String projectName, String moduleName,
         String enviroment) {
         this(DEFAULT_REST_CONNECTOR, bookshelfDomain, projectName, moduleName, System
@@ -61,20 +55,26 @@ public class BookshelfPropertyPlaceholderConfigurer
             : enviroment);
     }
 
+    public BookshelfPropertyPlaceholderConfigurer(String bookshelfDomain, String projectName, String moduleName) {
+        this(DEFAULT_REST_CONNECTOR, bookshelfDomain, projectName, moduleName, System
+            .getProperty(ENVIROMENT_SYSTEM_PROPERTY_KEY));
+    }
+
+    public BookshelfPropertyPlaceholderConfigurer(Class<? extends RESTConnector> restConnector, String projectName,
+        String moduleName) {
+        this(restConnector, System.getProperty(HOST_SYSTEM_PROPERTY_KEY), projectName, moduleName, System
+            .getProperty(ENVIROMENT_SYSTEM_PROPERTY_KEY));
+    }
+
     public BookshelfPropertyPlaceholderConfigurer(Class<? extends RESTConnector> restConnector, String bookshelfDomain,
         String projectName, String moduleName, String enviroment) {
-
-        if (bookshelfDomain == null) {
-            throw new RuntimeException("The domain of the server is null!");
-        }
-
-        if (enviroment == null) {
-            throw new RuntimeException("The enviroment is null!");
-        }
 
         this.serverUrl = String.format(BOOKSHELF_URL, bookshelfDomain, projectName, moduleName, enviroment);
 
         try {
+
+            LOGGER.debug("Creating RESTConnector [" + restConnector.getSimpleName() + "]  for " + this.serverUrl);
+
             this.connector = restConnector.getConstructor(String.class).newInstance(this.serverUrl);
         } catch (Exception e) {
 
@@ -92,17 +92,24 @@ public class BookshelfPropertyPlaceholderConfigurer
             return Collections.emptyMap();
         }
 
+        Map<String, String> properties = Collections.emptyMap();
+
         try {
-            return this.connector.get();
+
+            properties = this.connector.get();
+
+            LOGGER.info("Properties From Server:\n" + properties);
+
         } catch (Exception e) {
             if (!this.continueWithConnectionErrors) {
                 LOGGER.error("Cannot get values from " + this.serverUrl, e);
                 throw new RuntimeException(e.getCause());
             } else {
                 LOGGER.warn("Cannot get values from with " + this.serverUrl, e);
-                return Collections.emptyMap();
             }
         }
+
+        return properties;
     }
 
     public void postProcessBeanFactory(ConfigurableListableBeanFactory beanFactory) throws BeansException {
