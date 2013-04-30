@@ -4,8 +4,8 @@ import java.util.Map;
 
 public abstract class RESTConnector {
 
-    public static Integer CONNECTION_TIMEOUT = 5;
-    public static Integer READ_TIMEOUT = 5;
+    public static Integer CONNECTION_TIMEOUT = 5 * 1000;
+    public static Integer READ_TIMEOUT = 5 * 1000;
 
     private String endpoint;
 

@@ -10,7 +10,7 @@
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bookshelf.client</groupId>
 	<artifactId>bookshelf-client</artifactId>
-	<version>1.3</version>
+	<version>1.5</version>
 	<name>Bookshelf Client</name>
 
 	<repositories>
