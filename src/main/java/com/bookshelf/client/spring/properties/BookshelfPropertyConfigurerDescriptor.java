@@ -78,6 +78,10 @@ public class BookshelfPropertyConfigurerDescriptor
         return asList((Resource) new InputStreamResource(new ByteArrayInputStream(out.toByteArray())));
     }
 
+    public void setContinueWithConnectionErrors(boolean continueWithConnectionErrors) {
+        this.bookshelfConfigurer.setContinueWithConnectionErrors(continueWithConnectionErrors);
+    }
+
     @Override
     public int getOrder() {
         return HIGHEST_PRECEDENCE;
