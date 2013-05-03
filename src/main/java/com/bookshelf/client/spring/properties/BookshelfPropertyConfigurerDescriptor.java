@@ -59,19 +59,20 @@ public class BookshelfPropertyConfigurerDescriptor
     }
 
     @Override
+    public List<Resource> getApplicationResources() {
+        return this.getEnvironmentResources();
+    }
+
+    @Override
     public List<Resource> getEnvironmentResources() {
 
-        Properties dummyProps = this.getRemoteProperties();
+        Resource enviromentPropertiesResource = this.getRemotePropertiesAsResource();
 
-        ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-        try {
-            dummyProps.store(out, "");
-        } catch (IOException e) {
+        if (enviromentPropertiesResource == null) {
             return Collections.emptyList();
         }
 
-        return asList((Resource) new InputStreamResource(new ByteArrayInputStream(out.toByteArray())));
+        return asList(enviromentPropertiesResource);
     }
 
     public Properties getRemoteProperties() {
@@ -82,6 +83,20 @@ public class BookshelfPropertyConfigurerDescriptor
         }
 
         return dummyProps;
+    }
+
+    public Resource getRemotePropertiesAsResource() {
+        Properties dummyProps = this.getRemoteProperties();
+
+        ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+        try {
+            dummyProps.store(out, "");
+        } catch (IOException e) {
+            return null;
+        }
+
+        return new InputStreamResource(new ByteArrayInputStream(out.toByteArray()));
     }
 
     public String getServerUrl() {
