@@ -61,11 +61,7 @@ public class BookshelfPropertyConfigurerDescriptor
     @Override
     public List<Resource> getEnvironmentResources() {
 
-        Properties dummyProps = new Properties();
-
-        for (Entry<String, String> entry : this.bookshelfConfigurer.getPropertiesFromServer().entrySet()) {
-            dummyProps.setProperty(entry.getKey(), entry.getValue());
-        }
+        Properties dummyProps = this.getRemoteProperties();
 
         ByteArrayOutputStream out = new ByteArrayOutputStream();
 
@@ -76,6 +72,20 @@ public class BookshelfPropertyConfigurerDescriptor
         }
 
         return asList((Resource) new InputStreamResource(new ByteArrayInputStream(out.toByteArray())));
+    }
+
+    public Properties getRemoteProperties() {
+        Properties dummyProps = new Properties();
+
+        for (Entry<String, String> entry : this.bookshelfConfigurer.getPropertiesFromServer().entrySet()) {
+            dummyProps.setProperty(entry.getKey(), entry.getValue());
+        }
+
+        return dummyProps;
+    }
+
+    public String getServerUrl() {
+        return this.bookshelfConfigurer.getServerUrl();
     }
 
     public void setContinueWithConnectionErrors(boolean continueWithConnectionErrors) {

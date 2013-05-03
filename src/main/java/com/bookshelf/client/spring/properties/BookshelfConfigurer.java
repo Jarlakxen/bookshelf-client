@@ -58,14 +58,18 @@ public abstract class BookshelfConfigurer {
 
         } catch (Exception e) {
             if (!this.continueWithConnectionErrors) {
-                this.getLogger().error("Cannot get values from " + this.serverUrl, e);
+                this.getLogger().error("Cannot get values from " + this.getServerUrl(), e);
                 throw new RuntimeException(e.getCause());
             } else {
-                this.getLogger().warn("Cannot get values from with " + this.serverUrl, e);
+                this.getLogger().warn("Cannot get values from with " + this.getServerUrl(), e);
             }
         }
 
         return properties;
+    }
+
+    public String getServerUrl() {
+        return this.serverUrl;
     }
 
     public boolean isContinueWithConnectionErrors() {

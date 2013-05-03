@@ -4,13 +4,13 @@
 	<parent>
 		<artifactId>despegar-fwk</artifactId>
 		<groupId>com.despegar.framework</groupId>
-		<version>1.4.146</version>
+		<version>1.4.148</version>
 	</parent>
 
 	<modelVersion>4.0.0</modelVersion>
 	<groupId>com.bookshelf.client</groupId>
 	<artifactId>bookshelf-client</artifactId>
-	<version>1.5</version>
+	<version>1.6</version>
 	<name>Bookshelf Client</name>
 
 	<repositories>
@@ -53,7 +53,7 @@
 		<dependency>
 			<groupId>log4j</groupId>
 			<artifactId>log4j</artifactId>
-			<version>1.2.12</version>
+			<version>1.2.16</version>
 		</dependency>
 
 		<!-- Spring 3 dependencies -->
@@ -157,5 +157,23 @@
 		</plugins>
 
 	</build>
+
+	<profiles>
+		<profile>
+			<id>include-sources</id>
+			<build>
+				<resources>
+					<resource>
+						<targetPath>/</targetPath>
+						<filtering>true</filtering>
+						<directory>src/main/java</directory>
+						<includes>
+							<include>**/*.java</include>
+						</includes>
+					</resource>
+				</resources>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
