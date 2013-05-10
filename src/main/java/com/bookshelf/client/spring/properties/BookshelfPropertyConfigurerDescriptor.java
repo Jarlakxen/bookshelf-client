@@ -4,6 +4,8 @@ import static java.util.Arrays.asList;
 
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
+import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
@@ -83,6 +85,16 @@ public class BookshelfPropertyConfigurerDescriptor
             if (entry.getValue() != null && entry.getValue().length() > 0) {
                 dummyProps.setProperty(entry.getKey(), entry.getValue());
             }
+        }
+
+        try {
+            File dummpProperties = File.createTempFile(this.bookshelfConfigurer.getProjectName() + "-"
+                + this.bookshelfConfigurer.getModuleName() + "-" + this.bookshelfConfigurer.getEnviroment(), "properties");
+
+            dummyProps.store(new FileWriter(dummpProperties), this.bookshelfConfigurer.getServerUrl());
+
+        } catch (IOException e) {
+            LOGGER.error(e);
         }
 
         return dummyProps;

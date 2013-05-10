@@ -20,11 +20,19 @@ public abstract class BookshelfConfigurer {
 
     protected RESTConnector connector;
 
+    protected String bookshelfDomain;
+    protected String projectName;
+    protected String moduleName;
+    protected String enviroment;
     protected String serverUrl;
 
     public BookshelfConfigurer(Class<? extends RESTConnector> restConnector, String bookshelfDomain, String projectName,
         String moduleName, String enviroment) {
 
+        this.bookshelfDomain = bookshelfDomain;
+        this.projectName = projectName;
+        this.moduleName = moduleName;
+        this.enviroment = enviroment;
         this.serverUrl = String.format(BOOKSHELF_URL, bookshelfDomain, projectName, moduleName, enviroment);
 
         try {
@@ -69,6 +77,22 @@ public abstract class BookshelfConfigurer {
 
     public String getServerUrl() {
         return this.serverUrl;
+    }
+
+    public String getBookshelfDomain() {
+        return this.bookshelfDomain;
+    }
+
+    public String getProjectName() {
+        return this.projectName;
+    }
+
+    public String getModuleName() {
+        return this.moduleName;
+    }
+
+    public String getEnviroment() {
+        return this.enviroment;
     }
 
     public boolean isContinueWithConnectionErrors() {
