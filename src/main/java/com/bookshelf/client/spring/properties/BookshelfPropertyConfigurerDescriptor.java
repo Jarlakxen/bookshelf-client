@@ -13,6 +13,7 @@ import java.util.Properties;
 import org.apache.log4j.Logger;
 import org.springframework.core.io.InputStreamResource;
 import org.springframework.core.io.Resource;
+import org.springframework.util.StringUtils;
 
 import com.bookshelf.client.connector.RESTConnector;
 import com.despegar.library.properties.PropertyConfigurerDescriptor;
@@ -79,7 +80,10 @@ public class BookshelfPropertyConfigurerDescriptor
         Properties dummyProps = new Properties();
 
         for (Entry<String, String> entry : this.bookshelfConfigurer.getPropertiesFromServer().entrySet()) {
-            dummyProps.setProperty(entry.getKey(), entry.getValue());
+
+            if (!StringUtils.isEmpty(entry.getValue())) {
+                dummyProps.setProperty(entry.getKey(), entry.getValue());
+            }
         }
 
         return dummyProps;
