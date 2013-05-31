@@ -88,8 +88,15 @@ public class BookshelfPropertyConfigurerDescriptor
         }
 
         try {
-            File dummpProperties = File.createTempFile(this.bookshelfConfigurer.getProjectName() + "-"
-                + this.bookshelfConfigurer.getModuleName() + "-" + this.bookshelfConfigurer.getEnviroment(), "properties");
+            File dummpProperties = new File(System.getProperty("java.io.tmpdir") + "/"
+                + this.bookshelfConfigurer.getProjectName() + "-" + this.bookshelfConfigurer.getModuleName() + "-"
+                + this.bookshelfConfigurer.getEnviroment() + ".properties");
+
+            if (dummpProperties.exists()) {
+                dummpProperties.delete();
+            } else {
+                dummpProperties.createNewFile();
+            }
 
             dummyProps.store(new FileWriter(dummpProperties), this.bookshelfConfigurer.getServerUrl());
 
